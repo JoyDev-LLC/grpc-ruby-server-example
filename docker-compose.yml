@@ -1,0 +1,27 @@
+version: "3.6"
+
+services:
+  grpc-server-db:
+    image: postgres:14
+    container_name: grpc-server-db
+    restart: always
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data:rw
+    env_file: .env
+
+  grpc-server-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/grpc_server
+      - gem_cache:/usr/local/bundle/gems
+    command: bash -c "rake db:migrate && rake app:run"
+    container_name: grpc-server-app
+    restart: always
+    env_file: .env
+    depends_on:
+      - grpc-server-db
+
+volumes:
+  gem_cache:
